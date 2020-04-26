@@ -1,7 +1,7 @@
 # req
-[![GoDoc](https://godoc.org/github.com/imroc/req?status.svg)](https://godoc.org/github.com/imroc/req)
+[![GoDoc](https://godoc.org/github.com/moevis/req?status.svg)](https://godoc.org/github.com/moevis/req)
 
-A golang http request library for humans
+A golang http request library for humans [fork from github.com/imroc/req]
 
 
 
@@ -27,7 +27,7 @@ Document
 Install
 =======
 ``` sh
-go get github.com/imroc/req
+go get github.com/moevis/req
 ```
 
 Overview

@@ -54,8 +54,6 @@ func TestSetting(t *testing.T) {
 	EnableCookie(false)
 	EnableCookie(true)
 	EnableInsecureTLS(true)
-	SetJSONIndent("", "    ")
-	SetJSONEscapeHTML(false)
 	SetXMLIndent("", "\t")
 	SetProxyUrl("http://localhost:8080")
 	SetProxy(nil)

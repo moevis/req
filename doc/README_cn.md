@@ -1,5 +1,5 @@
 # req
-[![GoDoc](https://godoc.org/github.com/imroc/req?status.svg)](https://godoc.org/github.com/imroc/req)
+[![GoDoc](https://godoc.org/github.com/moevis/req?status.svg)](https://godoc.org/github.com/moevis/req)
 
 Go语言人性化HTTP请求库
 

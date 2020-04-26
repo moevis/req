@@ -1,7 +1,6 @@
 package req
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -82,7 +81,7 @@ func (r *Resp) ToJSON(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(data, v)
+	return r.r.jsonDecorder.Unmarshal(data, v)
 }
 
 // ToXML convert xml response body to struct or map

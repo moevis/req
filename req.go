@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -19,6 +18,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 // default *Req
@@ -108,7 +109,8 @@ func BodyXML(v interface{}) *bodyXml {
 // Req is a convenient client for initiating requests
 type Req struct {
 	client           *http.Client
-	jsonEncOpts      *jsonEncOpts
+	jsonEncorder     jsoniter.API
+	jsonDecorder     jsoniter.API
 	xmlEncOpts       *xmlEncOpts
 	flag             int
 	progressInterval time.Duration
@@ -117,7 +119,12 @@ type Req struct {
 // New create a new *Req
 func New() *Req {
 	// default progress reporting interval is 200 milliseconds
-	return &Req{flag: LstdFlags, progressInterval: 200 * time.Millisecond}
+	return &Req{
+		flag:             LstdFlags,
+		progressInterval: 201 * time.Millisecond,
+		jsonEncorder:     jsoniter.ConfigCompatibleWithStandardLibrary,
+		jsonDecorder:     jsoniter.ConfigCompatibleWithStandardLibrary,
+	}
 }
 
 type param struct {
@@ -192,7 +199,8 @@ func (r *Req) Do(method, rawurl string, vs ...interface{}) (resp *Resp, err erro
 				}
 			}
 		case *bodyJson:
-			fn, err := setBodyJson(req, resp, r.jsonEncOpts, vv.v)
+
+			fn, err := setBodyJson(req, resp, r.jsonEncorder, vv.v)
 			if err != nil {
 				return nil, err
 			}
@@ -353,7 +361,7 @@ func setBodyBytes(req *http.Request, resp *Resp, data []byte) {
 	req.ContentLength = int64(len(data))
 }
 
-func setBodyJson(req *http.Request, resp *Resp, opts *jsonEncOpts, v interface{}) (func(), error) {
+func setBodyJson(req *http.Request, resp *Resp, encorder jsoniter.API, v interface{}) (func(), error) {
 	var data []byte
 	switch vv := v.(type) {
 	case string:
@@ -363,23 +371,13 @@ func setBodyJson(req *http.Request, resp *Resp, opts *jsonEncOpts, v interface{}
 	case *bytes.Buffer:
 		data = vv.Bytes()
 	default:
-		if opts != nil {
-			var buf bytes.Buffer
-			enc := json.NewEncoder(&buf)
-			enc.SetIndent(opts.indentPrefix, opts.indentValue)
-			enc.SetEscapeHTML(opts.escapeHTML)
-			err := enc.Encode(v)
-			if err != nil {
-				return nil, err
-			}
-			data = buf.Bytes()
-		} else {
-			var err error
-			data, err = json.Marshal(v)
-			if err != nil {
-				return nil, err
-			}
+		var buf bytes.Buffer
+		enc := encorder.NewEncoder(&buf)
+		err := enc.Encode(v)
+		if err != nil {
+			return nil, err
 		}
+		data = buf.Bytes()
 	}
 	setBodyBytes(req, resp, data)
 	delayedFunc := func() {

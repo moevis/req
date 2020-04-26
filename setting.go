@@ -8,6 +8,8 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 // create a default client
@@ -116,6 +118,16 @@ func (r *Req) SetTimeout(d time.Duration) {
 	r.Client().Timeout = d
 }
 
+// SetJSONEncoder sets the custmized encorder for json
+func SetJSONEncoder(enc jsoniter.API) {
+	std.jsonEncorder = enc
+}
+
+// SetJSONDecoder sets the custmized decorder for json
+func SetJSONDecoder(enc jsoniter.API) {
+	std.jsonDecorder = enc
+}
+
 // SetTimeout sets the timeout for every request
 func SetTimeout(d time.Duration) {
 	std.SetTimeout(d)
@@ -153,58 +165,6 @@ func (r *Req) SetProxy(proxy func(*http.Request) (*url.URL, error)) error {
 // SetProxy sets the proxy for every request
 func SetProxy(proxy func(*http.Request) (*url.URL, error)) error {
 	return std.SetProxy(proxy)
-}
-
-type jsonEncOpts struct {
-	indentPrefix string
-	indentValue  string
-	escapeHTML   bool
-}
-
-func (r *Req) getJSONEncOpts() *jsonEncOpts {
-	if r.jsonEncOpts == nil {
-		r.jsonEncOpts = &jsonEncOpts{escapeHTML: true}
-	}
-	return r.jsonEncOpts
-}
-
-// SetJSONEscapeHTML specifies whether problematic HTML characters
-// should be escaped inside JSON quoted strings.
-// The default behavior is to escape &, <, and > to \u0026, \u003c, and \u003e
-// to avoid certain safety problems that can arise when embedding JSON in HTML.
-//
-// In non-HTML settings where the escaping interferes with the readability
-// of the output, SetEscapeHTML(false) disables this behavior.
-func (r *Req) SetJSONEscapeHTML(escape bool) {
-	opts := r.getJSONEncOpts()
-	opts.escapeHTML = escape
-}
-
-// SetJSONEscapeHTML specifies whether problematic HTML characters
-// should be escaped inside JSON quoted strings.
-// The default behavior is to escape &, <, and > to \u0026, \u003c, and \u003e
-// to avoid certain safety problems that can arise when embedding JSON in HTML.
-//
-// In non-HTML settings where the escaping interferes with the readability
-// of the output, SetEscapeHTML(false) disables this behavior.
-func SetJSONEscapeHTML(escape bool) {
-	std.SetJSONEscapeHTML(escape)
-}
-
-// SetJSONIndent instructs the encoder to format each subsequent encoded
-// value as if indented by the package-level function Indent(dst, src, prefix, indent).
-// Calling SetIndent("", "") disables indentation.
-func (r *Req) SetJSONIndent(prefix, indent string) {
-	opts := r.getJSONEncOpts()
-	opts.indentPrefix = prefix
-	opts.indentValue = indent
-}
-
-// SetJSONIndent instructs the encoder to format each subsequent encoded
-// value as if indented by the package-level function Indent(dst, src, prefix, indent).
-// Calling SetIndent("", "") disables indentation.
-func SetJSONIndent(prefix, indent string) {
-	std.SetJSONIndent(prefix, indent)
 }
 
 type xmlEncOpts struct {

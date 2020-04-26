@@ -188,8 +188,6 @@ func TestBodyJSON(t *testing.T) {
 	}
 	checkData(resp.reqBody)
 
-	SetJSONEscapeHTML(false)
-	SetJSONIndent("", "\t")
 	resp, err = Put(ts.URL, BodyJSON(&c))
 	if err != nil {
 		t.Fatal(err)
